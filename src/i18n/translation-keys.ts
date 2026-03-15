@@ -286,6 +286,48 @@ export interface Translation {
    * > 'minContains' cannot be greater than 'maxContains'.
    */
   readonly arrayValidationErrorContainsMinMax: string;
+  /**
+   * The translation for the key `arrayContainsLabel`. English default is:
+   *
+   * > Contains constraint
+   */
+  readonly arrayContainsLabel: string;
+  /**
+   * The translation for the key `arrayContainsDescription`. English default is:
+   *
+   * > Require at least one item matching a schema
+   */
+  readonly arrayContainsDescription: string;
+  /**
+   * The translation for the key `arrayContainsTypeLabel`. English default is:
+   *
+   * > Contains Type
+   */
+  readonly arrayContainsTypeLabel: string;
+  /**
+   * The translation for the key `arrayMinContainsLabel`. English default is:
+   *
+   * > Min Contains
+   */
+  readonly arrayMinContainsLabel: string;
+  /**
+   * The translation for the key `arrayMinContainsPlaceholder`. English default is:
+   *
+   * > No minimum
+   */
+  readonly arrayMinContainsPlaceholder: string;
+  /**
+   * The translation for the key `arrayMaxContainsLabel`. English default is:
+   *
+   * > Max Contains
+   */
+  readonly arrayMaxContainsLabel: string;
+  /**
+   * The translation for the key `arrayMaxContainsPlaceholder`. English default is:
+   *
+   * > No maximum
+   */
+  readonly arrayMaxContainsPlaceholder: string;
 
   /**
    * The translation for the key `booleanNoConstraint`. English default is:

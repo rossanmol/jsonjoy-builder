@@ -59,6 +59,13 @@ export const zh: Translation = {
   arrayValidationErrorMinMax: "「最少子项数」不能大于「最多子项数」",
   arrayValidationErrorContainsMinMax:
     "「最少包含子项数」不能大于「最多包含子项数」",
+  arrayContainsLabel: "包含约束",
+  arrayContainsDescription: "要求至少一个子项匹配指定的模式",
+  arrayContainsTypeLabel: "包含类型",
+  arrayMinContainsLabel: "最少包含",
+  arrayMinContainsPlaceholder: "无最少约束",
+  arrayMaxContainsLabel: "最多包含",
+  arrayMaxContainsPlaceholder: "无最多约束",
 
   booleanNoConstraint: "无约束",
   booleanAllowedValuesLabel: "允许的值",

@@ -59,6 +59,13 @@ export const en: Translation = {
   arrayValidationErrorMinMax: "'minItems' cannot be greater than 'maxItems'.",
   arrayValidationErrorContainsMinMax:
     "'minContains' cannot be greater than 'maxContains'.",
+  arrayContainsLabel: "Contains constraint",
+  arrayContainsDescription: "Require at least one item matching a schema",
+  arrayContainsTypeLabel: "Contains Type",
+  arrayMinContainsLabel: "Min Contains",
+  arrayMinContainsPlaceholder: "No minimum",
+  arrayMaxContainsLabel: "Max Contains",
+  arrayMaxContainsPlaceholder: "No maximum",
 
   booleanNoConstraint: "No constraint",
   booleanAllowedValuesLabel: "Allowed Values",

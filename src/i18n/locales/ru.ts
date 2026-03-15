@@ -61,6 +61,13 @@ export const ru: Translation = {
   arrayValidationErrorMinMax: "'minItems' не может быть больше 'maxItems'.",
   arrayValidationErrorContainsMinMax:
     "'minContains' не может быть больше 'maxContains'.",
+  arrayContainsLabel: "Ограничение contains",
+  arrayContainsDescription: "Требовать хотя бы один элемент, соответствующий схеме",
+  arrayContainsTypeLabel: "Тип contains",
+  arrayMinContainsLabel: "Мин. содержит",
+  arrayMinContainsPlaceholder: "Нет минимума",
+  arrayMaxContainsLabel: "Макс. содержит",
+  arrayMaxContainsPlaceholder: "Нет максимума",
 
   booleanNoConstraint: "Без ограничений",
   booleanAllowedValuesLabel: "Разрешенные значения",

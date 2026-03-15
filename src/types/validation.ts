@@ -249,15 +249,15 @@ export function buildValidationTree(
       schema === true
         ? { success: true }
         : {
-            success: false,
-            errors: [
-              {
-                code: "custom",
-                message: t.validatorErrorSchemaValidation,
-                path: [],
-              } as unknown as z.core.$ZodIssue,
-            ],
-          };
+          success: false,
+          errors: [
+            {
+              code: "custom",
+              message: t.validatorErrorSchemaValidation,
+              path: [],
+            } as unknown as z.core.$ZodIssue,
+          ],
+        };
 
     const node: ValidationTreeNode = {
       name: String(schema),
@@ -317,6 +317,10 @@ export function buildValidationTree(
       (sch.prefixItems as JSONSchema[]).forEach((it, idx) => {
         children[`prefixItems[${idx}]`] = buildValidationTree(it, t);
       });
+    }
+
+    if (sch.contains) {
+      children.contains = buildValidationTree(sch.contains as JSONSchema, t);
     }
   }
 

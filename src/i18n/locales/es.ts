@@ -60,6 +60,13 @@ export const es: Translation = {
   arrayValidationErrorMinMax: "'minItems' no puede ser mayor que 'maxItems'.",
   arrayValidationErrorContainsMinMax:
     "'minContains' no puede ser mayor que 'maxContains'.",
+  arrayContainsLabel: "Restricción contiene",
+  arrayContainsDescription: "Requerir al menos un elemento que coincida con un esquema",
+  arrayContainsTypeLabel: "Tipo contiene",
+  arrayMinContainsLabel: "Mín. contiene",
+  arrayMinContainsPlaceholder: "Sin mínimo",
+  arrayMaxContainsLabel: "Máx. contiene",
+  arrayMaxContainsPlaceholder: "Sin máximo",
 
   booleanNoConstraint: "Sin restricción",
   booleanAllowedValuesLabel: "Valores Permitidos",

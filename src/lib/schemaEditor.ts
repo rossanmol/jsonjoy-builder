@@ -159,6 +159,16 @@ export function getArrayItemsSchema(schema: JSONSchema): JSONSchema | null {
 }
 
 /**
+ * Gets the contains schema from an array schema
+ */
+export function getArrayContainsSchema(schema: JSONSchema): JSONSchema | null {
+  if (isBooleanSchema(schema)) return null;
+  if (schema.type !== "array") return null;
+
+  return schema.contains || null;
+}
+
+/**
  * Renames a property while preserving order in the object schema
  */
 export function renameObjectProperty(

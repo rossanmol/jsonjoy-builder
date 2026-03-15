@@ -34,58 +34,85 @@ const ArrayEditor: React.FC<TypeEditorProps> = ({
   const [uniqueItems, setUniqueItems] = useState<boolean>(
     withObjectSchema(schema, (s) => s.uniqueItems || false, false),
   );
+  const [containsEnabled, setContainsEnabled] = useState<boolean>(
+    withObjectSchema(schema, (s) => !!s.contains, false),
+  );
+  const [containsSchema, setContainsSchema] = useState<ObjectJSONSchema>(
+    withObjectSchema(
+      schema,
+      (s) => (s.contains as ObjectJSONSchema) || { type: "string" },
+      { type: "string" },
+    ),
+  );
+  const [minContains, setMinContains] = useState<number | undefined>(
+    withObjectSchema(schema, (s) => s.minContains, undefined),
+  );
+  const [maxContains, setMaxContains] = useState<number | undefined>(
+    withObjectSchema(schema, (s) => s.maxContains, undefined),
+  );
 
   const minItemsId = useId();
   const maxItemsId = useId();
   const uniqueItemsId = useId();
+  const containsId = useId();
+  const minContainsId = useId();
+  const maxContainsId = useId();
 
-  // Get the array's item schema
   const itemsSchema = getArrayItemsSchema(schema) || { type: "string" };
 
-  // Get the type of the array items
   const itemType = withObjectSchema(
     itemsSchema,
     (s) => (s.type || "string") as SchemaType,
     "string" as SchemaType,
   );
 
-  // Handle validation settings change
-  const handleValidationChange = () => {
-    const propsToKeep = buildValidationProps();
+  const containsType = withObjectSchema(
+    containsSchema,
+    (s) => (s.type || "string") as SchemaType,
+    "string" as SchemaType,
+  );
 
-    onChange(propsToKeep as ObjectJSONSchema);
-  };
-
-  /**
-   * Builds and normalizes the JSON Schema validation properties for an array schema.
-   *
-   * This helper merges base schema constraints with optional overrides,
-   * preserves the `items` schema when not explicitly provided,
-   * and removes any undefined properties to produce a clean schema object.
-   */
   const buildValidationProps = ({
     minItems: overrideMinItems,
     maxItems: overrideMaxItems,
     uniqueItems: overrideUniqueItems,
+    contains: overrideContains,
+    containsEnabled: overrideContainsEnabled,
+    minContains: overrideMinContains,
+    maxContains: overrideMaxContains,
   }: {
     minItems?: number;
     maxItems?: number;
     uniqueItems?: boolean;
+    contains?: ObjectJSONSchema;
+    containsEnabled?: boolean;
+    minContains?: number;
+    maxContains?: number;
   } = {}) => {
+    const isContainsActive = overrideContainsEnabled ?? containsEnabled;
+
     const validationProps: ObjectJSONSchema = {
       type: "array",
       ...(isBooleanSchema(schema) ? {} : schema),
-      minItems: overrideMinItems || minItems,
-      maxItems: overrideMaxItems || maxItems,
-      uniqueItems: overrideUniqueItems || undefined,
+      minItems: overrideMinItems ?? minItems,
+      maxItems: overrideMaxItems ?? maxItems,
+      uniqueItems: (overrideUniqueItems ?? uniqueItems) || undefined,
     };
 
-    // Keep the items schema
     if (validationProps.items === undefined && itemsSchema) {
       validationProps.items = itemsSchema;
     }
 
-    // Clean up undefined values
+    if (isContainsActive) {
+      validationProps.contains = overrideContains ?? containsSchema;
+      validationProps.minContains = overrideMinContains ?? minContains;
+      validationProps.maxContains = overrideMaxContains ?? maxContains;
+    } else {
+      delete validationProps.contains;
+      delete validationProps.minContains;
+      delete validationProps.maxContains;
+    }
+
     const propsToKeep: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(validationProps)) {
       if (value !== undefined) {
@@ -96,15 +123,31 @@ const ArrayEditor: React.FC<TypeEditorProps> = ({
     return propsToKeep as ObjectJSONSchema;
   };
 
-  // Handle item schema changes
+  const handleValidationChange = () => {
+    onChange(buildValidationProps());
+  };
+
   const handleItemSchemaChange = (updatedItemSchema: ObjectJSONSchema) => {
     const updatedSchema: ObjectJSONSchema = {
       type: "array",
       ...(isBooleanSchema(schema) ? {} : schema),
       items: updatedItemSchema,
     };
-
     onChange(updatedSchema);
+  };
+
+  const handleContainsSchemaChange = (updated: ObjectJSONSchema) => {
+    setContainsSchema(updated);
+    onChange(buildValidationProps({ contains: updated }));
+  };
+
+  const handleContainsToggle = (checked: boolean) => {
+    setContainsEnabled(checked);
+    if (!checked) {
+      setMinContains(undefined);
+      setMaxContains(undefined);
+    }
+    onChange(buildValidationProps({ containsEnabled: checked }));
   };
 
   const minMaxError = useMemo(
@@ -130,9 +173,16 @@ const ArrayEditor: React.FC<TypeEditorProps> = ({
     [validationNode],
   );
 
+  const containsMinMaxError = useMemo(
+    () =>
+      validationNode?.validation.errors?.find(
+        (err) => err.path[0] === "minmaxContains",
+      )?.message,
+    [validationNode],
+  );
+
   return (
     <div className="space-y-6">
-      {/* Array validation settings */}
       {(!readOnly || !!maxItems || !!minItems) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {(!readOnly || !!minItems) && (
@@ -155,7 +205,6 @@ const ArrayEditor: React.FC<TypeEditorProps> = ({
                     ? Number(e.target.value)
                     : undefined;
                   setMinItems(value);
-                  // Don't update immediately to avoid too many rerenders
                 }}
                 onBlur={handleValidationChange}
                 placeholder={t.arrayMinimumPlaceholder}
@@ -184,7 +233,6 @@ const ArrayEditor: React.FC<TypeEditorProps> = ({
                     ? Number(e.target.value)
                     : undefined;
                   setMaxItems(value);
-                  // Don't update immediately to avoid too many rerenders
                 }}
                 onBlur={handleValidationChange}
                 placeholder={t.arrayMaximumPlaceholder}
@@ -218,11 +266,140 @@ const ArrayEditor: React.FC<TypeEditorProps> = ({
         </div>
       )}
 
+      {/* Contains constraint */}
+      {(!readOnly || containsEnabled) && (
+        <div
+          className={cn(
+            "space-y-4 pt-4 border-border/40",
+            !readOnly || !!minItems || !!maxItems || !!uniqueItems
+              ? "border-t"
+              : null,
+          )}
+        >
+          <div className="flex items-center space-x-2">
+            <Switch
+              id={containsId}
+              checked={containsEnabled}
+              disabled={readOnly}
+              onCheckedChange={handleContainsToggle}
+            />
+            <div>
+              <Label htmlFor={containsId} className="cursor-pointer">
+                {t.arrayContainsLabel}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {t.arrayContainsDescription}
+              </p>
+            </div>
+          </div>
+
+          {containsEnabled && (
+            <div className="space-y-4 pl-4 border-l-2 border-border/40">
+              <div className="flex items-center justify-between mb-4">
+                <Label>{t.arrayContainsTypeLabel}</Label>
+                <TypeDropdown
+                  readOnly={readOnly}
+                  value={containsType}
+                  onChange={(newType) => {
+                    const updated: ObjectJSONSchema = {
+                      ...withObjectSchema(containsSchema, (s) => s, {}),
+                      type: newType,
+                    };
+                    setContainsSchema(updated);
+                    onChange(buildValidationProps({ contains: updated }));
+                  }}
+                />
+              </div>
+
+              <TypeEditor
+                readOnly={readOnly}
+                schema={containsSchema}
+                validationNode={validationNode?.children?.contains}
+                onChange={handleContainsSchemaChange}
+                depth={depth + 1}
+              />
+
+              {(!readOnly || !!minContains || !!maxContains) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(!readOnly || !!minContains) && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor={minContainsId}
+                        className={!!containsMinMaxError && "text-destructive"}
+                      >
+                        {t.arrayMinContainsLabel}
+                      </Label>
+                      <Input
+                        id={minContainsId}
+                        type="number"
+                        min={0}
+                        value={minContains ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            ? Number(e.target.value)
+                            : undefined;
+                          setMinContains(value);
+                        }}
+                        onBlur={handleValidationChange}
+                        placeholder={t.arrayMinContainsPlaceholder}
+                        className={cn(
+                          "h-8",
+                          !!containsMinMaxError && "border-destructive",
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {(!readOnly || !!maxContains) && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor={maxContainsId}
+                        className={!!containsMinMaxError && "text-destructive"}
+                      >
+                        {t.arrayMaxContainsLabel}
+                      </Label>
+                      <Input
+                        id={maxContainsId}
+                        type="number"
+                        min={0}
+                        value={maxContains ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            ? Number(e.target.value)
+                            : undefined;
+                          setMaxContains(value);
+                        }}
+                        onBlur={handleValidationChange}
+                        placeholder={t.arrayMaxContainsPlaceholder}
+                        className={cn(
+                          "h-8",
+                          !!containsMinMaxError && "border-destructive",
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {!!containsMinMaxError && (
+                    <div className="text-xs text-destructive italic md:col-span-2">
+                      {containsMinMaxError}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Array item type editor */}
       <div
         className={cn(
           "space-y-2 pt-4 border-border/40",
-          !readOnly || !!minItems || !!maxItems || !!uniqueItems
+          !readOnly ||
+            !!minItems ||
+            !!maxItems ||
+            !!uniqueItems ||
+            containsEnabled
             ? "border-t"
             : null,
         )}
@@ -241,7 +418,6 @@ const ArrayEditor: React.FC<TypeEditorProps> = ({
           />
         </div>
 
-        {/* Item schema editor */}
         <TypeEditor
           readOnly={readOnly}
           schema={itemsSchema}

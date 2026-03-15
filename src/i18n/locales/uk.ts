@@ -60,6 +60,13 @@ export const uk: Translation = {
   arrayValidationErrorMinMax: "'minItems' не може бути більше за 'maxItems'.",
   arrayValidationErrorContainsMinMax:
     "'minContains' не може бути більше за 'maxContains'.",
+  arrayContainsLabel: "Обмеження contains",
+  arrayContainsDescription: "Вимагати принаймні один елемент, що відповідає схемі",
+  arrayContainsTypeLabel: "Тип contains",
+  arrayMinContainsLabel: "Мін. містить",
+  arrayMinContainsPlaceholder: "Немає мінімуму",
+  arrayMaxContainsLabel: "Макс. містить",
+  arrayMaxContainsPlaceholder: "Немає максимуму",
 
   booleanNoConstraint: "Без обмежень",
   booleanAllowedValuesLabel: "Дозволені значення",

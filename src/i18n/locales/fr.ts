@@ -62,6 +62,13 @@ export const fr: Translation = {
     "'minItems' ne peut pas être supérieur à 'maxItems'.",
   arrayValidationErrorContainsMinMax:
     "'minContains' ne peut pas être supérieur à 'maxContains'.",
+  arrayContainsLabel: "Contrainte contient",
+  arrayContainsDescription: "Exiger au moins un élément correspondant à un schéma",
+  arrayContainsTypeLabel: "Type contenu",
+  arrayMinContainsLabel: "Min contient",
+  arrayMinContainsPlaceholder: "Pas de minimum",
+  arrayMaxContainsLabel: "Max contient",
+  arrayMaxContainsPlaceholder: "Pas de maximum",
 
   booleanNoConstraint: "Pas de constrainte",
   booleanAllowedValuesLabel: "Valeurs autorisées",
